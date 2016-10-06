@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 from lxml import html
 import requests
-page = requests.get("http://www.cse.unsw.edu.au/studying-at-unsw/undergraduate/program-options/computer-engineering/elective-list/")
 
-#with open("raw.html","r") as in_file:
-#    raw_html = in_file.read()
+headings = ["Breadth electives", "Depth electives"]
 
+page = requests.get("https://www.engineering.unsw.edu.au/computer-science-engineering/help-resources/for-students/program-outlines/ug-program-outlines-2014-and-prior/computer-engineeri-1")
 tree = html.fromstring(page.content)
 
-print("# Computer Engineering\n\n2016 elective options\n\n**WARNING** Only applies to *Computer Engineering* students enrolled in the [old program prior 2015](http://www.handbook.unsw.edu.au/undergraduate/programs/2014/3645.html).\n\n")
+#
+#with open("raw.html","r") as in_file:
+#    raw_html = in_file.read()
+#
+#tree = html.fromstring(raw_html)
 
-elements = tree.find_class("paragraph")
+print("# Computer Engineering\n\n2017 elective options\n\n**WARNING** Only applies to *Computer Engineering* students who started in 2014 (i.e. started with my cohort) (http://www.handbook.unsw.edu.au/undergraduate/programs/2014/3645.html).\n\nNote: COMP3211 isn't really a breadth elective as it is core - yes, another one of /those/ courses.\n\n")
+
+# for each of the two tables (breadth and depth)
+j = 0
+elements = tree.find_class("table table-striped table-course")
 for element in elements:
 
-    print("# " + element.find('h2').text)
+    print("# " + headings[j])
+    j = j + 1
 
     s1_offered = []
     s2_offered = []
@@ -25,7 +33,7 @@ for element in elements:
         f = link.xpath('../following-sibling::td')
         course = f[0].text
 
-        timetable_url = requests.get("http://timetable.unsw.edu.au/2016/" + course_code + ".html")
+        timetable_url = requests.get("http://timetable.unsw.edu.au/2017/" + course_code + ".html")
 
         subtree = html.fromstring(timetable_url.content)
 
@@ -40,15 +48,15 @@ for element in elements:
             if (len(e) > 0):
                 s2_offered.append([course_code, course])
 
-    print("\n### Offered 2016s1:")
+    print("\n### Offered 2017s1:")
     for i in s1_offered:
-        print('[{0}](http://timetable.unsw.edu.au/2016/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2016/{0}.html)\n'.format(i[0], i[1]))
+        print('[{0}](http://timetable.unsw.edu.au/2017/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2017/{0}.html)\n'.format(i[0], i[1]))
 
-    print("\n### Offered 2016s2:")
+    print("\n### Offered 2017s2:")
     for i in s2_offered:
-        print('[{0}](http://timetable.unsw.edu.au/2016/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2016/{0}.html)\n'.format(i[0], i[1]))
+        print('[{0}](http://timetable.unsw.edu.au/2017/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2017/{0}.html)\n'.format(i[0], i[1]))
 
     print("\n### Not running :(")
     for i in not_offered:
-        print('[{0}](http://timetable.unsw.edu.au/2016/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2016/{0}.html)\n'.format(i[0], i[1]))
+        print('[{0}](http://timetable.unsw.edu.au/2017/{0}.html) [{1}](http://www.handbook.unsw.edu.au/undergraduate/courses/2017/{0}.html)\n'.format(i[0], i[1]))
 
